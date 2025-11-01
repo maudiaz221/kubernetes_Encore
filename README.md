@@ -1,119 +1,172 @@
-# URL Shortener Starter
+# API Dashboard - Todo API with Encore.ts and Drizzle ORM
 
-This is an Encore starter for a URL Shortener. It has two API endpoints and a PostgreSQL database to store the URL IDs 
-and retrieve the full URL given an ID.
+A simple REST API built with Encore.ts and Drizzle ORM featuring User management, Authentication, and Todo list functionality.
 
-## Build from scratch with a tutorial
+## 🚀 Quick Start
 
-If you prefer to built it yourself, check out the [tutorial](https://encore.dev/docs/ts/tutorials/rest-api) to learn how to build this application from scratch.
+### Prerequisites
+- Node.js (v18+)
+- Docker and Docker Compose
+- Encore CLI (install: `curl -L https://encore.dev/install.sh | bash`)
 
-## Prerequisites 
+### Setup
 
-**Install Encore:**
-- **macOS:** `brew install encoredev/tap/encore`
-- **Linux:** `curl -L https://encore.dev/install.sh | bash`
-- **Windows:** `iwr https://encore.dev/install.ps1 | iex`
-  
-**Docker:**
-1. [Install Docker](https://docker.com)
-2. Start Docker
+1. **Start PostgreSQL database:**
+   ```bash
+   npm run docker:up
+   # or
+   docker-compose up -d
+   ```
 
-## Create app
+2. **Push database schema:**
+   ```bash
+   npm run db:push
+   ```
 
-Create a local app from this template:
+3. **Run the application:**
+   ```bash
+   encore run
+   ```
 
-```bash
-encore app create my-app-name --example=ts/url-shortener
+The API will be available at `http://localhost:4000`
+Encore dev dashboard at `http://localhost:9400`
+
+## 📁 Project Structure
+
+```
+api-dash/
+├── src/
+│   ├── User/
+│   │   ├── model.ts         # User types
+│   │   ├── repository.ts    # Database operations
+│   │   ├── service.ts       # Business logic
+│   │   ├── controller.ts    # API endpoints
+│   │   └── encore.service.ts
+│   ├── Auth/
+│   │   ├── login.ts         # Login endpoint
+│   │   ├── signup.ts        # Registration endpoint
+│   │   ├── signout.ts       # Signout endpoint
+│   │   └── encore.service.ts
+│   └── Todo/
+│       ├── model.ts         # Todo types
+│       ├── repository.ts    # Database operations
+│       ├── service.ts       # Business logic
+│       ├── controller.ts    # API endpoints
+│       └── encore.service.ts
+├── database/
+│   ├── database.ts          # Drizzle ORM setup
+│   ├── schema.ts            # Database schema
+│   └── migrations/          # Database migrations
+└── docker-compose.yml       # PostgreSQL setup
 ```
 
-## Run app locally
+## 🔌 API Endpoints
 
-Before running your application, make sure you have Docker installed and running. Then run this command from your application's root folder:
+### Authentication
+- `POST /auth/signup` - Register a new user
+- `POST /auth/login` - Login with credentials
+- `POST /auth/signout` - Sign out
 
+### Users
+- `POST /users` - Create a user
+- `GET /users/:id` - Get user by ID
+- `PUT /users/:id` - Update user
+- `DELETE /users/:id` - Delete user
+
+### Todos
+- `POST /todos` - Create a todo
+- `GET /todos/:id` - Get todo by ID
+- `GET /todos/user/:userId` - List all todos for a user
+- `PUT /todos/:id` - Update todo
+- `PATCH /todos/:id/toggle` - Toggle todo completion
+- `DELETE /todos/:id` - Delete todo
+
+## 📝 Example Requests
+
+### Sign Up
 ```bash
-encore run
+curl -X POST http://localhost:4000/auth/signup \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "John Doe",
+    "email": "john@example.com",
+    "password": "securepassword123"
+  }'
 ```
 
-## Using the API
-
-### url.shorten — Shortens a URL and adds it to the database
-
+### Login
 ```bash
-curl 'http://127.0.0.1:4000/url' -d '{"url":"https://google.com"}'
+curl -X POST http://localhost:4000/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "john@example.com",
+    "password": "securepassword123"
+  }'
 ```
 
-### url.get — Gets a URL from the database using a short ID
-
+### Create Todo
 ```bash
-curl 'http://127.0.0.1:4000/url/:id'
+curl -X POST http://localhost:4000/todos \
+  -H "Content-Type: application/json" \
+  -d '{
+    "userId": 1,
+    "title": "Buy groceries",
+    "description": "Milk, eggs, bread"
+  }'
 ```
 
-### url.list — Lists all shortened URLs
-
+### List User Todos
 ```bash
-curl 'http://127.0.0.1:4000/url'
+curl http://localhost:4000/todos/user/1
 ```
 
-## Open the developer dashboard
+## 🛠️ Development
 
-While `encore run` is running, open [http://localhost:9400](http://localhost:9400) to access Encore's [local developer dashboard](https://encore.dev/docs/ts/observability/dev-dash).
-
-Here you can see API docs, make requests in the API explorer, and view traces of the responses.
-
-## Using the API
-
-To see that your app is running, you can ping the API to shorten a url.
-
+### Database Commands
 ```bash
-curl 'http://localhost:4000/url' -d '{"url":"https://news.ycombinator.com"}'
+# Start database
+npm run docker:up
+
+# Stop database
+npm run docker:down
+
+# Generate migrations (when schema changes)
+npm run db:generate
+
+# Push schema to database
+npm run db:push
+
+# Open Drizzle Studio (database GUI)
+npm run db:studio
 ```
 
-When you ping the API, you will see traces and logs appearing in the local development dashboard: [http://localhost:9400](http://localhost:9400)
-
-## Connecting to databases
-
-You can connect to your databases via psql shell:
-
-```bash
-encore db shell <database-name> --env=local --superuser
+### Database Connection
+The app connects to PostgreSQL using the connection string:
+```
+postgresql://postgres:postgres@localhost:5432/tododb
 ```
 
-Learn more in the [CLI docs](https://encore.dev/docs/ts/cli/cli-reference#database-management).
+Configured in `.env` file and `docker-compose.yml`
 
-## Deployment
-
-### Self-hosting
-
-See the [self-hosting instructions](https://encore.dev/docs/ts/self-host/build) for how to use `encore build docker` to create a Docker image and configure it.
-
-### Encore Cloud Platform
-
-Deploy your application to a free staging environment in Encore's development cloud using `git push encore`:
-
+## 🧪 Testing
 ```bash
-git add -A .
-git commit -m 'Commit message'
-git push encore
+npm test
 ```
 
-You can also open your app in the [Cloud Dashboard](https://app.encore.dev) to integrate with GitHub, or connect your AWS/GCP account, enabling Encore to automatically handle cloud deployments for you.
+## 📚 Tech Stack
+- **Framework:** Encore.ts
+- **ORM:** Drizzle ORM
+- **Database:** PostgreSQL 15
+- **Language:** TypeScript
+- **Password Hashing:** bcryptjs
 
-## Link to GitHub
+## 🔐 Security Notes
+- Passwords are hashed with bcrypt before storage
+- In production, implement proper JWT token generation and validation
+- Use environment variables for sensitive data
+- Add rate limiting and authentication middleware
 
-Follow these steps to link your app to GitHub:
+## 📖 Learn More
+- [Encore.ts Documentation](https://encore.dev/docs/ts)
+- [Drizzle ORM Documentation](https://orm.drizzle.team)
 
-1. Create a GitHub repo, commit and push the app.
-2. Open your app in the [Cloud Dashboard](https://app.encore.dev).
-3. Go to **Settings ➔ GitHub** and click on **Link app to GitHub** to link your app to GitHub and select the repo you just created.
-4. To configure Encore to automatically trigger deploys when you push to a specific branch name, go to the **Overview** page for your intended environment. Click on **Settings** and then in the section **Branch Push** configure the **Branch name** and hit **Save**.
-5. Commit and push a change to GitHub to trigger a deploy.
-
-[Learn more in the docs](https://encore.dev/docs/platform/integrations/github)
-
-## Testing
-
-To run tests, configure the `test` command in your `package.json` to the test runner of your choice, and then use the command `encore test` from the CLI. The `encore test` command sets up all the necessary infrastructure in test mode before handing over to the test runner. [Learn more](https://encore.dev/docs/ts/develop/testing)
-
-```bash
-encore test
-```

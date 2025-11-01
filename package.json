@@ -6,15 +6,25 @@
   "license": "MPL-2.0",
   "type": "module",
   "scripts": {
-    "test": "vitest"
+    "test": "vitest",
+    "db:generate": "drizzle-kit generate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20.5.7",
     "typescript": "^5.2.2",
     "vitest": "^2.1.4"
   },
   "dependencies": {
-    "encore.dev": "^1.50.7"
+    "bcryptjs": "^3.0.2",
+    "drizzle-kit": "^0.31.6",
+    "drizzle-orm": "^0.44.7",
+    "encore.dev": "^1.50.7",
+    "postgres": "^3.4.7"
   },
   "optionalDependencies": {
     "@rollup/rollup-linux-x64-gnu": "^4.13.0"
